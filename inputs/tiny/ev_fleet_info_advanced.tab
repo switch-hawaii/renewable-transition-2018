@@ -1,0 +1,5 @@
+LOAD_ZONE	VEHICLE_TYPE	PERIOD	n_vehicles	ice_gals_per_year	ice_fuel	ev_kwh_per_year	ev_extra_cost_per_vehicle_year
+Oahu	All_Diesel_Vehicles	2025	14688.0	1724.64298544	Motor_Diesel	16288.3941689	3800.51007203
+Oahu	All_Diesel_Vehicles	2045	14688.0	1390.84111729	Motor_Diesel	16288.3941689	1461.73464309
+Oahu	All_Gasoline_Vehicles	2025	653604.0	432.395212761	Motor_Gasoline	4647.536532	877.761853736
+Oahu	All_Gasoline_Vehicles	2045	653604.0	348.705816742	Motor_Gasoline	4647.536532	337.600712975

@@ -1,0 +1,10 @@
+Icon?
+outputs*/
+scenario_queue*/
+sq/
+*.pyc
+.*
+!.gitignore
+~$*
+*.xls*
+*.doc*

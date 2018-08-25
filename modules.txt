@@ -1,0 +1,44 @@
+# note: commented-out modules may be added via --include-modules ...
+# in the scenario definitions.
+
+switch_model
+switch_model.timescales
+switch_model.financials
+switch_model.balancing.load_zones
+switch_model.energy_sources.properties
+switch_model.generators.core.build
+switch_model.generators.core.dispatch
+switch_model.energy_sources.fuel_costs.markets
+switch_model.generators.core.gen_discrete_build
+switch_model.generators.core.commit.operate
+switch_model.generators.core.commit.fuel_use
+switch_model.generators.core.commit.discrete
+switch_model.generators.extensions.storage
+switch_model.balancing.operating_reserves.areas
+switch_model.balancing.operating_reserves.spinning_reserves_advanced
+# next module makes sure the model is always feasible, to help identify tough hours
+# switch_model.hawaii.unserved_load
+switch_model.hawaii.fuel_markets_expansion
+switch_model.hawaii.switch_patch
+switch_model.hawaii.rps
+switch_model.hawaii.lng_conversion
+switch_model.hawaii.ev_advanced
+# note: kalaeloa depends on rps and ev
+switch_model.hawaii.kalaeloa
+switch_model.hawaii.hydrogen
+switch_model.hawaii.demand_response_simple
+# todo: eventually merge the next two modules and/or replace with standard storage
+# formulation and custom adaptations for inflow and reserves (see hawaii.lake_wilson)
+switch_model.hawaii.pumped_hydro
+switch_model.hawaii.register_hi_storage_reserves
+# switch_model.hawaii.psip_2016_12   # not used for this study
+switch_model.hawaii.fed_subsidies
+allocate_period_constraints
+# note: smooth_dispatch should be run after constructing most modules but before reporting
+switch_model.hawaii.smooth_dispatch
+switch_model.hawaii.save_results
+switch_model.reporting
+# relax integrality, etc.
+# custom
+# remote debugging on distributed solvers
+# debug

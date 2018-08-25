@@ -1,0 +1,112 @@
+# set default options for switch model
+
+# control logging and reporting
+--verbose
+--stream-solver
+--sorted-output
+# report emissions from grid and ICEs
+--save-expressions AnnualEmissions ice_annual_emissions
+
+# solver options
+# note: we have to use a pretty wide mipgap (0.01=1%) to get solutions in reasonable time
+# with discrete unit-commitment; using mipthreads=4 might also help
+# (could also specify timelimit=7200 to stop after two hours)
+# --solver=cplex --solver-io=nl
+# --solver-options-string="display=1 mipdisplay=1 iisfind=1 threads=1"
+--solver cplexamp
+#--solver-options-string="mipgap=0.01 mipemphasis=0 mipbasis=1 nodefile=3 display=1 mipdisplay=2 threads=1 iisfind=1"
+#--solver-options-string="mipgap=0.01 mipemphasis=4 mipbasis=1 nodefile=3 display=1 mipdisplay=2 threads=1 iisfind=1 primalopt='' numericalemphasis=1 basis_cond=1"
+# note: cplex in mip mode seems to use up to abt 3 cpus and get abt 30% reduction in time vs 1 thread
+# also seems to use abt 1.2 GB per allowed thread plus python uses abt 6 GB per model instance
+# Note: mipemphasis=4 seems to do better than mipemphasis=1 in small tests, but not on hard problems (fossil/bau) and seems to cause out-of-memory errors on hard problems.
+# Note: mipgap=0.001 takes a lot longer than mipgap=0.01; it gives more certainty about the results, but the differences between scenarios are > 1% anyway, so we stick with 0.01 (could use 0.001 and post-opt evaluation later)
+--solver-options-string "mipgap=0.01 mipemphasis=1 mipbasis=1 nodefile=3 nodefiledir=./tmp memoryemphasis=1 display=1 mipdisplay=2 iisfind=1 threads=5 parallelmode=-1 numericalemphasis=1 basis_cond=1 timing=4 mipalg=2 primalopt='' crash=1 time=216000"
+--suffixes iis
+# gurobi is a little faster, but it only provides duals for MIP models or IIS when run in nl mode (gurobi_ampl command)
+#--solver=gurobi
+#--solver-options-string='MIPGap=0.01 threads=1 basis=3 outlev=1'
+#--solver-io=nl
+
+# base_12 has 12 timesteps per day; base_24 has 24 timesteps; tiny is good for testing
+--inputs-dir inputs/tiny
+--outputs-dir outputs/tiny
+#--logs-dir outputs
+#--log-run
+
+# uncomment the next line to use the glpk solver (overrides earlier setting)
+# note: glpk is generally not fast enough to solve the full model
+# --solver=glpk --solver-options-string=""
+
+# uncomment the next line to run a mini, fast version of the model
+# --inputs-dir inputs_tiny
+
+# use (only) locked-in capacity additions from PSIP
+# (these are all in existing plants now)
+# --psip-relax
+
+# don't allow LNG conversion, since it's currently off the table
+# (proposal in docket 2016-0125 was withdrawn, Gov. opposes, PSIP 2016-12-23 didn't mention it)
+# We will do alternative cases with specific LNG configurations.
+# note: Switch can choose the optimal LNG tier, but solutions take at least 4 hours
+# (to 2% optimality gap) when doing this with discrete commit in effect, so it's
+# probably best to evaluate the best option without discrete commitment or just choose
+# a likely candidate (e.g., 25 year bulk starting in 2020), then evaluate that in more
+# detail. (Takes a little under an hour to solve to 1% with no LNG allowed.)
+# We now do this explicitly for each scenario, since the all-fossil scenarios allow LNG.
+--force-lng-tier none
+
+# use a relatively low amount of demand response (per PSIP)
+--demand-response-share 0.10
+
+# use the relaxed-split-commit method of RPS allocation (fairly fast and accurate)
+--rps-allocation relaxed_split_commit
+# switching fuel by period is also fairly fast and reasonable, but uses binary variables
+#--rps-allocation fuel_switch_by_period
+
+# use Hawaii reserve rules
+--spinning-requirement-rule Hawaii
+
+# use simple spinning reserve treatment
+# --contingency-reserve-type spinning
+# --regulating-reserve-type spinning
+# use regulation and contingency reserve categories, not just "spinning"
+--contingency-reserve-type contingency
+--regulating-reserve-type regulation
+
+# get regulation and contingency reserves from pumped hydro
+#--hawaii-storage-reserve-types spinning
+--hawaii-storage-reserve-types regulation contingency
+
+# get contingency and regulation reserves from hydrogen equipment
+# --hydrogen-reserve-types spinning
+--hydrogen-reserve-types regulation contingency
+
+# don't get reserves from DR and EVs in base case
+# --demand-response-reserve-types spinning
+# --ev-reserve-types spinning
+# --demand-response-reserve-types regulation contingency
+# --ev-reserve-types regulation contingency
+--demand-response-reserve-types none
+--ev-reserve-types none
+
+# use individual units as contingencies, not whole projects (e.g., the stacked
+# units in the new IC plants)
+# --unit-contingency
+
+# use fixed reserve margin (faster than unit-level contingencies(?) and gives
+# nice margin at all times)
+--fixed-contingency 180
+
+# use a fairly low unserved load penalty, so model will generally try to avoid it,
+# but cost estimate won't be totally skewed if it misses a little (for PSIP)
+# (not actually an issue with newer PSIP, which is always feasible, and this
+# actually slows down the model (roughly double solution time for base case))
+# --unserved-load-penalty 1000
+
+# smooth the dispatch schedule
+# --include-module switch_model.hawaii.smooth_dispatch --iterate-list iterate_smooth.txt
+
+# PHA options
+#--pha-inputs-dir inputs/pha_dat
+#--pha-scenario-count 4
+#--pha-scenario-digit-count 3
