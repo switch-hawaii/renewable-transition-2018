@@ -1,3 +1,22 @@
+###################
+# TODO:
+# This could be made into a full capacity expansion model, instead of
+# just production-cost, by applying the PHA nonanticipativity
+# constraints here. i.e., allow each slice to build what it wants but
+# then in the master problem choose a mix of subproblem bids that
+# gives consistent construction across slices, subject to a high
+# penalty on each slice's mismatch with the mean; then report the dual
+# of the mismatch constraint as the cost/benefit of slack in each
+# scenario.
+# This creates one constraint per build var per slice, which makes a
+# big master problem. We could  reduce problem size and improve
+# efficiency by having each slice span multiple days, e.g., all 1st of
+# month, all 2nd of month, etc. Or even choose sets of days (possibly
+# weighted internally, possibly not disjoint, but with equal aggregate
+# weight for all historical weather days) that each resemble the
+# overall distribution.
+####################
+
 import os
 from pyomo.environ import *
 from switch_model.utilities import make_iterable
